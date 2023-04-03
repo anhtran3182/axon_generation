@@ -5,26 +5,24 @@ import matplotlib.pyplot as plt
 
 from shapely.geometry import Point, Polygon, mapping
 
-def generate_circle_centers(number):
-    points = []
+def generate_circle_centers():
     minx, miny, maxx, maxy = polygon.bounds
-    while len(points) < number:
-        pnt = Point(np.random.uniform(minx, maxx), np.random.uniform(miny, maxy))
-        if polygon.contains(pnt):
-            points.append(pnt)
-    
-    return points
+    while True:
+        point = Point(np.random.uniform(minx, maxx), np.random.uniform(miny, maxy))
+        if polygon.contains(point):
+            return point
 
 def generate_circle_radius():
     return np.random.uniform(min_radius, max_radius)
 
 def generate_circles():
-    centers = generate_circle_centers(n_circles)
     circles = []
-    for center in centers:
+
+    while len(circles) < n_circles:
+        center = generate_circle_centers()
         radius = generate_circle_radius()
         circle = center.buffer(radius)
-        if polygon.contains(circle):
+        if not any(existing_circle.intersects(circle) for existing_circle in circles) and polygon.contains(circle):
             circles.append(circle)
 
     return circles
@@ -57,9 +55,14 @@ plt.show()
 '''
 
 # define requirements
-n_circles = 20
+n_circles = 50
 min_radius = 0.005
 max_radius = 0.01
+
+# redefine the polygon allowing the generated circles to not touch the boundary 
+# and are completely within the polygon
+buffer_distance = min_radius * 0.5
+polygon = polygon.buffer(-buffer_distance)
 
 xp,yp = polygon.exterior.xy
 plt.plot(xp,yp)
