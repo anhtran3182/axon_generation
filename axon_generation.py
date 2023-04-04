@@ -1,70 +1,74 @@
+import csv
 import geopandas as gpd
 import numpy as np
-import generate_shape
+import matplotlib.pyplot as plt
+
+from shapely.geometry import Point, Polygon, mapping
+
+'''
+This file: 'Results_Sample22209-20x.csv'
+
+boundary_x is array for column 6
+boundary_y is array for column 7
+'''
+
+import geopandas as gpd
+import numpy as np
 import matplotlib.pyplot as plt
 
 from shapely.geometry import Point, Polygon, mapping
 
 def generate_circle_centers():
-    minx, miny, maxx, maxy = polygon.bounds
+    minx, miny, maxx, maxy = shape.bounds
     while True:
         point = Point(np.random.uniform(minx, maxx), np.random.uniform(miny, maxy))
-        if polygon.contains(point):
+        if shape.contains(point):
             return point
 
 def generate_circle_radius():
     return np.random.uniform(min_radius, max_radius)
 
 def generate_circles():
-    circles = []
+    axons = []
 
-    while len(circles) < n_circles:
+    while len(axons) < axons_num:
         center = generate_circle_centers()
         radius = generate_circle_radius()
-        circle = center.buffer(radius)
-        if not any(existing_circle.intersects(circle) for existing_circle in circles) and polygon.contains(circle):
-            circles.append(circle)
+        new_axon = center.buffer(radius)
+        if not any(existing_axon.intersects(new_axon) for existing_axon in axons) and shape.contains(new_axon):
+            axons.append(new_axon)
 
-    return circles
+    return axons
 
-############# Boundary Set Up #############
-# define the shape's boundary as a list of x and y points
-rad = 0.2
-edgy = 0.05
-a = generate_shape.get_random_points(n=7, scale=1) 
-boundary_x, boundary_y, _ = generate_shape.get_bezier_curve(a,rad=rad, edgy=edgy)
+def generate_boundary(filename):
+    boundary_x = []  
+    boundary_y = []
 
-# make the polygon based on list
-coords = list(zip(boundary_x, boundary_y))
-polygon = Polygon(coords)
+    with open(filename, 'r') as file:
+        reader = csv.reader(file)
 
-'''
-# Plot the polygon
-xp,yp = polygon.exterior.xy
-plt.plot(xp,yp)
-    #plt.show()
-
-# generate random points
-points = generate_circle_centers(polygon, 20)
-
-# Plot the list of points
-xs = [point.x for point in points]
-ys = [point.y for point in points]
-plt.scatter(xs, ys,color="red")
-plt.show()
-'''
+        for row in reader:
+            if 'X' not in row[5] and 'Y' not in row[6]:
+                boundary_x.append(row[5])  
+                boundary_y.append(row[6])
+    return list(zip(boundary_x, boundary_y))
+    
+    
+# make the polygon 
+boundary = generate_boundary('Results_Sample22209-20x.csv')
+shape = Polygon(boundary)
 
 # define requirements
-n_circles = 50
-min_radius = 0.005
-max_radius = 0.01
+axons_num = 100
+min_radius = 1
+max_radius = 5
 
-# redefine the polygon allowing the generated circles to not touch the boundary 
-# and are completely within the polygon
+# redefine the shape so that the generated circles do not touch the boundary 
 buffer_distance = min_radius * 0.5
-polygon = polygon.buffer(-buffer_distance)
+shape = shape.buffer(-buffer_distance)
 
-xp,yp = polygon.exterior.xy
+# plot the shape and axons
+xp,yp = shape.exterior.xy
 plt.plot(xp,yp)
 
 circles = generate_circles()
