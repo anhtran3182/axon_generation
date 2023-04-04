@@ -1,3 +1,10 @@
+'''
+This file is referenced from:
+https://stackoverflow.com/questions/50731785/create-random-shape-contour-using-matplotlib
+
+to generate a random shape
+'''
+
 import numpy as np
 from scipy.special import binom
 import matplotlib.pyplot as plt
