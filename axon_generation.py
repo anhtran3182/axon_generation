@@ -29,8 +29,6 @@ def generate_circle_radius():
     return np.random.uniform(min_radius, max_radius)
 
 def generate_circles():
-    axons = []
-
     while len(axons) < axons_num:
         center = generate_circle_centers()
         radius = generate_circle_radius()
@@ -52,8 +50,40 @@ def generate_boundary(filename):
                 boundary_x.append(row[5])  
                 boundary_y.append(row[6])
     return list(zip(boundary_x, boundary_y))
+
+def get_axon_info(axons):
+    center_x = []
+    center_y = []
+    radius = []
+    for axon in axons:
+        center_x.append(axon.centroid.x)
+        center_y.append(axon.centroid.y)
+        radius.append(axon.exterior.coords[0][0] - axon.centroid.x)
+    return center_x, center_y, radius
     
-    
+def save_axon_info(axons, filename):
+    center_x, center_y, radius = get_axon_info(axons)
+
+    with open(filename, mode='w', newline='') as csvfile:
+        fieldnames = ['contour_num', 'centroid_x', 'centroid_y', 'centroid_z', 'circular_diameter']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for i in range(len(axons)):
+            writer.writerow({'contour_num': i+1, 'centroid_x': center_x[i], 'centroid_y': center_y[i], 'centroid_z': 0, 'circular_diameter': 2*radius[i]})
+
+def plot():
+    # plot the shape and axons
+    xp,yp = shape.exterior.xy
+    plt.plot(xp,yp)
+
+    for each_axon in axons:
+        xp,yp = each_axon.exterior.xy
+        plt.plot(xp,yp)
+
+    plt.show()
+
+
 # make the polygon 
 boundary = generate_boundary('Results_Sample22209-20x.csv')
 shape = Polygon(boundary)
@@ -62,18 +92,25 @@ shape = Polygon(boundary)
 axons_num = 100
 min_radius = 1
 max_radius = 5
+axons = []
 
 # redefine the shape so that the generated circles do not touch the boundary 
 buffer_distance = min_radius * 0.5
 shape = shape.buffer(-buffer_distance)
 
-# plot the shape and axons
-xp,yp = shape.exterior.xy
-plt.plot(xp,yp)
+axons = generate_circles()
+save_axon_info(axons, 'axon_info.csv')
 
-circles = generate_circles()
-for circle in circles:
-    xp,yp = circle.exterior.xy
-    plt.plot(xp,yp)
+plot()
 
-plt.show()
+'''
+Axon outputs:
+   contour_num
+   centroid_x
+   centroid_y
+   centroid_z = all zeros
+   circular diameter
+
+
+need a box of saline
+'''
