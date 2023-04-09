@@ -53,11 +53,13 @@ def generate_boundary(filename):
 
 def get_axon_info():
     axon_info = []
+    pixels_per_micron = 2401.336 / 1000
+    
     for i, axon in enumerate(axons):
         info = {
             "Contour_num": i+1,
-            "Centroid_x": axon.centroid.x,
-            "Centroid_y": axon.centroid.y,
+            "Centroid_x": axon.centroid.x / pixels_per_micron,
+            "Centroid_y": axon.centroid.y / pixels_per_micron,
             "Centroid_z": 0,
             "Circular Diameter (Area)": axon.exterior.coords[0][0] - axon.centroid.x
         }
