@@ -51,27 +51,37 @@ def generate_boundary(filename):
                 boundary_y.append(row[6])
     return list(zip(boundary_x, boundary_y))
 
-def get_axon_info(axons):
-    center_x = []
-    center_y = []
-    radius = []
-    for axon in axons:
-        center_x.append(axon.centroid.x)
-        center_y.append(axon.centroid.y)
-        radius.append(axon.exterior.coords[0][0] - axon.centroid.x)
-    return center_x, center_y, radius
-    
-def save_axon_info(axons, filename):
-    center_x, center_y, radius = get_axon_info(axons)
+def get_axon_info():
+    axon_info = []
+    for i, axon in enumerate(axons):
+        info = {
+            "Contour_num": i+1,
+            "Centroid_x": axon.centroid.x,
+            "Centroid_y": axon.centroid.y,
+            "Centroid_z": 0,
+            "Circular Diameter (Area)": axon.exterior.coords[0][0] - axon.centroid.x
+        }
+        axon_info.append(info)
+        
+    return axon_info
 
-    with open(filename, mode='w', newline='') as csvfile:
-        fieldnames = ['contour_num', 'centroid_x', 'centroid_y', 'centroid_z', 'circular_diameter']
+def save_axon_info(filename):
+    axon_info = get_axon_info()
+    
+    with open(filename, "w", newline="") as csvfile:
+        fieldnames = ["Contour_num", "Centroid_x", "Centroid_y", "Centroid_z", "Circular Diameter (Area)"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
+        for info in axon_info:
+            writer.writerow(info)
+            
+def print_axon_info():
+    axon_info = get_axon_info()
+    print("Contour_num | Centroid X | Centroid Y | Diameter")
+    for info in axon_info:
+        print(f"{info['Contour_num']:9d} | {info['Centroid_x']:10.2f} | {info['Centroid_y']:10.2f} | {info['Circular Diameter (Area)']:8.2f}")
 
-        for i in range(len(axons)):
-            writer.writerow({'contour_num': i+1, 'centroid_x': center_x[i], 'centroid_y': center_y[i], 'centroid_z': 0, 'circular_diameter': 2*radius[i]})
-
+            
 def plot():
     # plot the shape and axons
     xp,yp = shape.exterior.xy
@@ -99,18 +109,8 @@ buffer_distance = min_radius * 0.5
 shape = shape.buffer(-buffer_distance)
 
 axons = generate_circles()
-save_axon_info(axons, 'axon_info.csv')
 
+save_axon_info('axon_info.csv')
+print_axon_info()
 plot()
 
-'''
-Axon outputs:
-   contour_num
-   centroid_x
-   centroid_y
-   centroid_z = all zeros
-   circular diameter
-
-
-need a box of saline
-'''
