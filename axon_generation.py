@@ -8,8 +8,8 @@ from shapely.geometry import Point, Polygon, mapping
 '''
 This file: 'Results_Sample22209-20x.csv'
 
-boundary_x is array for column 6
-boundary_y is array for column 7
+boundary_x is array for column 1
+boundary_y is array for column 2
 '''
 
 import geopandas as gpd
@@ -46,9 +46,9 @@ def generate_boundary(filename):
         reader = csv.reader(file)
 
         for row in reader:
-            if 'X' not in row[5] and 'Y' not in row[6]:
-                boundary_x.append(row[5])  
-                boundary_y.append(row[6])
+            if 'X' not in row[1] and 'Y' not in row[2]:
+                boundary_x.append(row[1])  
+                boundary_y.append(row[2])
     return list(zip(boundary_x, boundary_y))
 
 def get_axon_info():
