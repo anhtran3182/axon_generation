@@ -1,17 +1,10 @@
-import csv
-import geopandas as gpd
-import numpy as np
-import matplotlib.pyplot as plt
-
-from shapely.geometry import Point, Polygon, mapping
-
 '''
 This file: 'Results_Sample22209-20x.csv'
 
 boundary_x is array for column 1
 boundary_y is array for column 2
 '''
-
+import csv
 import geopandas as gpd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -53,7 +46,7 @@ def generate_boundary(filename):
 
 def get_axon_info():
     axon_info = []
-    pixels_per_micron = 2401.336 / 1000
+    pixels_per_micron = 1190.6906 / 1000
     
     for i, axon in enumerate(axons):
         info = {
@@ -97,22 +90,22 @@ def plot():
 
 
 # make the polygon 
-boundary = generate_boundary('Results_Sample22209-20x.csv')
+boundary = generate_boundary('22210-rotated-90-degree-10x/Fascicle_Contour_XY_22210-rotated 90 degree-10Obj.csv')
 shape = Polygon(boundary)
 
 # define requirements
 axons_num = 100
-min_radius = 1
-max_radius = 5
+min_radius = 2.796
+max_radius = 5.771
 axons = []
 
 # redefine the shape so that the generated circles do not touch the boundary 
-buffer_distance = min_radius * 0.5
+buffer_distance = min_radius * 1.5
 shape = shape.buffer(-buffer_distance)
 
 axons = generate_circles()
 
-save_axon_info('axon_info.csv')
-print_axon_info()
+save_axon_info('22210-rotated-90-degree-10x/22210_axon_info.csv')
+# print_axon_info()
 plot()
 
